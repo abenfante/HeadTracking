@@ -16,6 +16,7 @@ while True:
     # Finding the faces
     image, boundingBoxes = faceDetector.findFaces(image) #bounding boxes
 
+    #TODO: try to add z coordinate if possible to zoom in and zoom out the camera on unity scene
     if boundingBoxes:
         firstFaceCoordinates = boundingBoxes[0]['center'] #take the first face and obtain x and y values
         dataToSend = str.encode(str(firstFaceCoordinates)) #convert tuple to string
