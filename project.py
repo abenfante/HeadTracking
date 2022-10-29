@@ -16,9 +16,12 @@ while True:
     # Finding the faces
     image, boundingBoxes = faceDetector.findFaces(image) #bounding boxes
 
-    #TODO: try to add z coordinate if possible to zoom in and zoom out the camera on unity scene
+    #TODO: try to add z coordinate if possible to zoom in and zoom out the camera on unity
     if boundingBoxes:
         firstFaceCoordinates = boundingBoxes[0]['center'] #take the first face and obtain x and y values
+        boundingBoxSize = boundingBoxes[0]['bbox'][2]
+        #add boundingBoxSize to firstFaceCoordinates tuple
+        firstFaceCoordinates = firstFaceCoordinates + (boundingBoxSize,)
         dataToSend = str.encode(str(firstFaceCoordinates)) #convert tuple to string
         socketInstance.sendto(dataToSend, urlPort) #sends coordinate string to address port
 
