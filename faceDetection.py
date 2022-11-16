@@ -43,7 +43,7 @@ class FaceDetector:
 
 
 def main():
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     detector = FaceDetector()
     while True:
         success, img = cap.read()

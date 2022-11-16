@@ -2,7 +2,7 @@ from faceDetection import FaceDetector
 import cv2
 import socket
 
-capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture(1)
 capture.set(3, 640)
 capture.set(4, 480)
 
@@ -13,6 +13,7 @@ urlPort = ('127.0.0.1', 8080) #localhost
 
 while True:
     success, image = capture.read()
+
     # Finding the faces
     image, boundingBoxes = faceDetector.findFaces(image) #bounding boxes
 
