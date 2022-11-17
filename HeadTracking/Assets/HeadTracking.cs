@@ -7,12 +7,12 @@ using System;
 public class HeadTracking : MonoBehaviour
 {
     public UDPReceive uDPReceive; //script to access data from webcam
-    public GameObject cameraObject; //gameobject of camera
-    public Transform cameraTarget;
-    public float focalDistance = 1, scalingFactor = 5;
-    public Vector2 cameraResolution = new(640,480);
-
-
+    public GameObject cameraObject; //gameobject della camera virtuale
+    public Transform cameraTarget; //oggetto relativo al quale si muove la camera virtuale
+    public float focalDistance = 1, scalingFactor = 5; //lunghezza focale della webcam e fattore di scala tra spazio 3D reale e virtuale
+    public Vector2 cameraResolution = new(640,480); //risoluzione della webcam
+    public float DistanceToVCameraFocalLenghtFactor = 1f; //fattore di conversione tra distanza della testa e lunghezza focale della camera virtuale 
+    public float lensShiftFactor = 1;
     List<float> xList = new();
     List<float> yList = new();
     List<float> zList = new();
@@ -21,7 +21,7 @@ public class HeadTracking : MonoBehaviour
     void Update()
     {
         string data = uDPReceive.data;
-        //since it arrives (x,y) removes the ()
+        
         if (data != "")
         {
             float xBBPos, yBBpos, BBsize;
@@ -30,57 +30,93 @@ public class HeadTracking : MonoBehaviour
             AverageBBData(xBBPos, yBBpos, BBsize, out xAverage, out yAverage, out sizeAverage);
 
 
+            float headDistance;
 
-            cameraObject.transform.localPosition = BBDataToCameraPosition(xAverage, yAverage, sizeAverage, focalDistance, scalingFactor, debug:true);
+            Vector3 headPosition = BBDataToHeadPosition(xAverage, yAverage, sizeAverage, focalDistance, scalingFactor, out headDistance, debug: true);
+            cameraObject.transform.localPosition = headPosition;
+            Camera cam = GetComponent<Camera>();
+            cam.focalLength = DistanceToVCameraFocalLenghtFactor * headDistance / scalingFactor;
+            cam.lensShift = - headPosition * lensShiftFactor;
+            // assumiamo che l'utente guardi verso un determinato oggetto
+            //cameraObject.transform.LookAt(cameraTarget, Vector3.up);
 
-
-            // we must assume the direction of the gaze towards a target, as we dont really know it
-            cameraObject.transform.LookAt(cameraTarget, Vector3.up);
         }
         
     }
 
-    private Vector3 BBDataToCameraPosition(float x, float y, float size, float focalDistance, float scalingFactor, bool debug) 
+    private Vector3 BBDataToHeadPosition(float x, float y, float size, float focalDistance, float scalingFactor, out float headDistance, bool debug) 
     {
-        //TO DO: update this caluculation with a more sofisticated one to map the point distance correctly
+        /*
+        -rendere la camera così costruita facilmente spostabile e ruotabile
+        -inserire funzionalità per regolare scala e lunghezza focale durante l'uso
+        - migliorare accuratezza del calcolo della distanza
+        */
+
+        // distanza ricostruita del volto dalla camera, lungo l'asse ottico
         float pointDistance = scalingFactor / size;
+        // fattore di trasformazione dalle coordinate dell'immagine alle coordinate 3D perpendicolari all'asse ottico
         float p = pointDistance / focalDistance;
+
+        headDistance = pointDistance;
 
         if (debug)
         {
-            
             float h = cameraResolution.x / 200 * p, v = cameraResolution.y / 200 * p;
 
-            //draw current plane
-            Debug.DrawLine(new(h, v, -pointDistance), new(h, -v, -pointDistance), Color.green);
-            Debug.DrawLine(new(h, -v, -pointDistance), new(-h, -v, -pointDistance), Color.green);
-            Debug.DrawLine(new(-h, -v, -pointDistance), new(-h, v, -pointDistance), Color.green);
-            Debug.DrawLine(new(-h, v, -pointDistance), new(h, v, -pointDistance), Color.green);
+            Matrix4x4 childToParentMatrix = transform.parent.localToWorldMatrix;
+
+            Vector3[] currPlane = {childToParentMatrix.MultiplyPoint(new( h,  v, -pointDistance)),
+                                   childToParentMatrix.MultiplyPoint(new( h, -v, -pointDistance)),
+                                   childToParentMatrix.MultiplyPoint(new(-h, -v, -pointDistance)),
+                                   childToParentMatrix.MultiplyPoint(new(-h,  v, -pointDistance))};
             
-            //draw camera movement frustrum
+
+            //piano dove si trova il volto
+            Debug.DrawLine(currPlane[0], currPlane[1], Color.green);
+            Debug.DrawLine(currPlane[1], currPlane[2], Color.green);
+            Debug.DrawLine(currPlane[2], currPlane[3], Color.green);
+            Debug.DrawLine(currPlane[3], currPlane[0], Color.green);
+            
+            //Disegno del frustum della camera
+            //  calcoli preliminari, la distanza minima si ha quando il volto riempe l'inquadratura (size = 1),
+            //  la massima quando è molto piccolo (size = 0.1).
+            //  Questo disegno serve solo a visualizzare lo spazio visto dalla camera nel mondo 3D
             float p1 = -(scalingFactor / 1f) / focalDistance; //smallest distance
             float pD1 = -(scalingFactor / 1f); //smallest distance
             float p2 = -(scalingFactor / 0.1f) / focalDistance; //biggest distance
             float pD2 = -(scalingFactor / 0.1f); //biggest distance
-            //closest plane
+            //  disegno del piano più vicino
             float h_c = cameraResolution.x / 200 * p1;
             float v_c = cameraResolution.y / 200 * p1;
-            Debug.DrawLine(new(h_c, v_c, pD1), new(h_c, -v_c, pD1), Color.red);
-            Debug.DrawLine(new(h_c, -v_c, pD1), new(-h_c, -v_c, pD1), Color.red);
-            Debug.DrawLine(new(-h_c, -v_c, pD1), new(-h_c, v_c, pD1), Color.red);
-            Debug.DrawLine(new(-h_c, v_c, pD1), new(h_c, v_c, pD1), Color.red);
-            //far plane
+            Vector3[] closePlane = {childToParentMatrix.MultiplyPoint(new( h_c,  v_c, pD1)),
+                                    childToParentMatrix.MultiplyPoint(new( h_c, -v_c, pD1)),
+                                    childToParentMatrix.MultiplyPoint(new(-h_c, -v_c, pD1)),
+                                    childToParentMatrix.MultiplyPoint(new(-h_c,  v_c, pD1))};
+
+            Debug.DrawLine(closePlane[0], closePlane[1], Color.red);
+            Debug.DrawLine(closePlane[1], closePlane[2], Color.red);
+            Debug.DrawLine(closePlane[2], closePlane[3], Color.red);
+            Debug.DrawLine(closePlane[3], closePlane[0], Color.red);
+
+            //  piano lontano
             float h_f = cameraResolution.x / 200 * p2;
             float v_f = cameraResolution.y / 200 * p2;
-            Debug.DrawLine(new(h_f, v_f, pD2), new(h_f, -v_f, pD2), Color.red);
-            Debug.DrawLine(new(h_f, -v_f, pD2), new(-h_f, -v_f, pD2), Color.red);
-            Debug.DrawLine(new(-h_f, -v_f, pD2), new(-h_f, v_f, pD2), Color.red);
-            Debug.DrawLine(new(-h_f, v_f, pD2), new(h_f, v_f, pD2), Color.red);
-            //edges
-            Debug.DrawLine(new(h_c, v_c, pD1), new(h_f, v_f, pD2), Color.red);
-            Debug.DrawLine(new(h_c, -v_c, pD1), new(h_f, -v_f, pD2), Color.red);
-            Debug.DrawLine(new(-h_c, v_c, pD1), new(-h_f, v_f, pD2), Color.red);
-            Debug.DrawLine(new(-h_c, -v_c, pD1), new(-h_f, -v_f, pD2), Color.red);
+            Vector3[] farPlane = {childToParentMatrix.MultiplyPoint(new( h_f,  v_f, pD2)),
+                                  childToParentMatrix.MultiplyPoint(new( h_f, -v_f, pD2)),
+                                  childToParentMatrix.MultiplyPoint(new(-h_f, -v_f, pD2)),
+                                  childToParentMatrix.MultiplyPoint(new(-h_f,  v_f, pD2))};
+
+            Debug.DrawLine(farPlane[0], farPlane[1], Color.red);
+            Debug.DrawLine(farPlane[1], farPlane[2], Color.red);
+            Debug.DrawLine(farPlane[2], farPlane[3], Color.red);
+            Debug.DrawLine(farPlane[3], farPlane[0], Color.red);
+
+            //  spigoli
+
+            Debug.DrawLine(closePlane[0], farPlane[0], Color.red);
+            Debug.DrawLine(closePlane[1], farPlane[1], Color.red);
+            Debug.DrawLine(closePlane[2], farPlane[2], Color.red);
+            Debug.DrawLine(closePlane[3], farPlane[3], Color.red);
 
         }
 
@@ -97,7 +133,7 @@ public class HeadTracking : MonoBehaviour
         //adds a bunch of this coordinates to obtain an average to move the camera smoothly
         if (xList.Count > 50) { xList.RemoveAt(0); }
         if (yList.Count > 50) { yList.RemoveAt(0); }
-        if (zList.Count > 50) { zList.RemoveAt(0); }
+        if (zList.Count > 150) { zList.RemoveAt(0); }
 
         xAverage = Queryable.Average(xList.AsQueryable());
         yAverage = Queryable.Average(yList.AsQueryable());
