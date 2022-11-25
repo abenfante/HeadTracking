@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ScreenBorders : MonoBehaviour
 {
-    public float pixelsPerUnit = 100;
+    [HideInInspector]public float pixelsPerUnit = 100;
     public bool debug = true;
     void Start()
     {
@@ -20,10 +20,10 @@ public class ScreenBorders : MonoBehaviour
         if (debug)
         {
             Vector3[] screenCorners = 
-                {childToParentMatrix.MultiplyPoint(new( virtualScreenSize.x,  virtualScreenSize.y)),
-                 childToParentMatrix.MultiplyPoint(new( virtualScreenSize.x, -virtualScreenSize.y)),
-                 childToParentMatrix.MultiplyPoint(new(-virtualScreenSize.x, -virtualScreenSize.y)),
-                 childToParentMatrix.MultiplyPoint(new(-virtualScreenSize.x,  virtualScreenSize.y))};
+                {childToParentMatrix.MultiplyPoint(new Vector2( virtualScreenSize.x,  virtualScreenSize.y) * 0.5f),
+                 childToParentMatrix.MultiplyPoint(new Vector2( virtualScreenSize.x, -virtualScreenSize.y) * 0.5f),
+                 childToParentMatrix.MultiplyPoint(new Vector2(-virtualScreenSize.x, -virtualScreenSize.y) * 0.5f),
+                 childToParentMatrix.MultiplyPoint(new Vector2(-virtualScreenSize.x,  virtualScreenSize.y) * 0.5f)};
 
             Debug.DrawLine(screenCorners[0], screenCorners[1], Color.cyan);
             Debug.DrawLine(screenCorners[1], screenCorners[2], Color.cyan);

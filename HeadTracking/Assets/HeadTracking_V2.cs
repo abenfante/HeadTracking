@@ -1,54 +1,81 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using System;
+using UnityEngine;
 
-public class HeadTracking : MonoBehaviour
+public class HeadTracking_V2 : MonoBehaviour
 {
-    public UDPReceive uDPReceive; //script to access data from webcam
-    public GameObject cameraObject; //gameobject della camera virtuale
-    public Transform cameraTarget; //oggetto relativo al quale si muove la camera virtuale
-    public float focalDistance = 1, scalingFactor = 5; //lunghezza focale della webcam e fattore di scala tra spazio 3D reale e virtuale
-    public Vector2 cameraResolution = new(640,480); //risoluzione della webcam
-    public float DistanceToVCameraFocalLenghtFactor = 1f; //fattore di conversione tra distanza della testa e lunghezza focale della camera virtuale 
-    public float lensShiftFactor = 1;
+
+    [Tooltip("Densità di pixel in DPI dello schermo usato")]
+    public float screenDPI; //densità di pixel in DPI dello schermo usato
+    [Tooltip("Quanti pollici è lunga una unità di lunghezza di Unity")]
+    public float UnitsToInchesScale; //
+    [Tooltip("Risoluzione della webcam ")]
+    public Vector2 cameraResolution = new(640, 480); //risoluzione della webcam
+    [Tooltip("Lunghezza focale della webcam")]
+    public float focalLenght = 1; //lunghezza focale della webcam
+    [Tooltip("Fattore di conversione da distanza della testa a dimensione del bounding box rilevato")]
+    public float headSizeFactor = 0.1f; //lunghezza focale della webcam
+
+    ScreenBorders screenBorders;
+    Camera camera;
+    UDPReceive uDPReceive; //script to access data from webcam
+    GameObject cameraObject; //gameobject della camera virtuale
+
+
     List<float> xList = new();
     List<float> yList = new();
     List<float> zList = new();
 
-    
+    private void Start()
+    {
+        screenDPI = Screen.dpi;
+        screenBorders = FindObjectOfType<ScreenBorders>();
+        camera = GetComponent<Camera>();
+        uDPReceive = GetComponent<UDPReceive>();
+    }
+
+
+
     void Update()
     {
         string data = uDPReceive.data;
-        
+
         if (data != "")
         {
+            
             float xBBPos, yBBpos, BBsize;
             ParseAndScaleBBData(data, out xBBPos, out yBBpos, out BBsize);
             float xAverage, yAverage, sizeAverage;
             AverageBBData(xBBPos, yBBpos, BBsize, out xAverage, out yAverage, out sizeAverage);
-
-
-            float headDistance;
-
-            Vector3 headPosition = BBDataToHeadPosition(xAverage, yAverage, sizeAverage, focalDistance, scalingFactor, out headDistance, debug: true);
-            cameraObject.transform.localPosition = headPosition;
-            Camera cam = GetComponent<Camera>();
-            cam.focalLength = DistanceToVCameraFocalLenghtFactor * headDistance / scalingFactor;
-            cam.lensShift = - headPosition * lensShiftFactor;
-
-            //Debug.Log(cam.scaledPixelHeight);
-            //Debug.Log(cam.pixelRect);
             
-            // assumiamo che l'utente guardi verso un determinato oggetto
-            //cameraObject.transform.LookAt(cameraTarget, Vector3.up);
+            Vector3 headPosition = BBDataToHeadPositionRelativeToCamera(
+                xAverage, yAverage, sizeAverage, focalLenght, debug: true);
 
+            //settiamo qui la posizione della camera
+            //perché questo script è sul gameobject figlio della webcam, che contiene la camera
+            camera.transform.localPosition = headPosition;
+            //la camera è rivolta verso lo schermo
+            camera.transform.rotation = screenBorders.transform.rotation;
+
+            
+            //per calcolare la distanza focale e il lens shift,
+            //calcoliamo la posizione della camera rispetto al centro dello schermo
+            Vector3 headPositionInWorld = transform.localToWorldMatrix.MultiplyPoint(headPosition); //da camera a mondo
+            Vector3 headPositionRelativeToScreen = screenBorders.transform.worldToLocalMatrix.MultiplyPoint(headPositionInWorld);
+            
+            //I parametri della camera sono tutti in pollici misurati nel mondo reale
+            //dimensioniamo il sensore in base all'aspect ratio dello schermo e alla dimensione.
+            camera.sensorSize = new(Screen.width / screenDPI, Screen.height / screenDPI);
+
+            //traduciamo questa posizione in lunghezza focale e lens shift 
+            camera.lensShift =new Vector2(-headPositionRelativeToScreen.x * UnitsToInchesScale / camera.sensorSize.x,
+                                          -headPositionRelativeToScreen.y * UnitsToInchesScale / camera.sensorSize.y);
+            camera.focalLength = -headPositionRelativeToScreen.z * UnitsToInchesScale;
         }
-        
+
     }
 
-    private Vector3 BBDataToHeadPosition(float x, float y, float size, float focalDistance, float scalingFactor, out float headDistance, bool debug) 
+    private Vector3 BBDataToHeadPositionRelativeToCamera(float BBx, float BBy, float BBsize, float focalLenght, bool debug)
     {
         /*
         -rendere la camera così costruita facilmente spostabile e ruotabile
@@ -57,11 +84,9 @@ public class HeadTracking : MonoBehaviour
         */
 
         // distanza ricostruita del volto dalla camera, lungo l'asse ottico
-        float pointDistance = scalingFactor / size;
+        float pointDistance = headSizeFactor / BBsize;
         // fattore di trasformazione dalle coordinate dell'immagine alle coordinate 3D perpendicolari all'asse ottico
-        float p = pointDistance / focalDistance;
-
-        headDistance = pointDistance;
+        float p = pointDistance / focalLenght;
 
         if (debug)
         {
@@ -73,22 +98,22 @@ public class HeadTracking : MonoBehaviour
                                    childToParentMatrix.MultiplyPoint(new( h, -v, -pointDistance)),
                                    childToParentMatrix.MultiplyPoint(new(-h, -v, -pointDistance)),
                                    childToParentMatrix.MultiplyPoint(new(-h,  v, -pointDistance))};
-            
+
 
             //piano dove si trova il volto
             Debug.DrawLine(currPlane[0], currPlane[1], Color.green);
             Debug.DrawLine(currPlane[1], currPlane[2], Color.green);
             Debug.DrawLine(currPlane[2], currPlane[3], Color.green);
             Debug.DrawLine(currPlane[3], currPlane[0], Color.green);
-            
+
             //Disegno del frustum della camera
             //  calcoli preliminari, la distanza minima si ha quando il volto riempe l'inquadratura (size = 1),
             //  la massima quando è molto piccolo (size = 0.1).
             //  Questo disegno serve solo a visualizzare lo spazio visto dalla camera nel mondo 3D
-            float p1 = -(scalingFactor / 1f) / focalDistance; //smallest distance
-            float pD1 = -(scalingFactor / 1f); //smallest distance
-            float p2 = -(scalingFactor / 0.1f) / focalDistance; //biggest distance
-            float pD2 = -(scalingFactor / 0.1f); //biggest distance
+            float p1 = -(headSizeFactor / 1f) / focalLenght; //smallest distance
+            float pD1 = -(headSizeFactor / 1f); //smallest distance
+            float p2 = -(headSizeFactor / 0.1f) / focalLenght; //biggest distance
+            float pD2 = -(headSizeFactor / 0.1f); //biggest distance
             //  disegno del piano più vicino
             float h_c = cameraResolution.x / 200 * p1;
             float v_c = cameraResolution.y / 200 * p1;
@@ -124,8 +149,7 @@ public class HeadTracking : MonoBehaviour
 
         }
 
-
-        return new Vector3(-x * p, -y * p, -pointDistance);
+        return new Vector3(-BBx * p, -BBy * p, -pointDistance);
     }
 
     private void AverageBBData(float x, float y, float z, out float xAverage, out float yAverage, out float zAverage)
