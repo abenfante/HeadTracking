@@ -8,13 +8,15 @@ public class HeadTracking_V2 : MonoBehaviour
     [Tooltip("Densità di pixel in DPI dello schermo usato")]
     public float screenDPI; //densità di pixel in DPI dello schermo usato
     [Tooltip("Quanti pollici è lunga una unità di lunghezza di Unity")]
-    public float UnitsToInchesScale; //
+    public float UnitsToInchesScale = 0.35f;
     [Tooltip("Risoluzione della webcam ")]
     public Vector2 cameraResolution = new(640, 480); //risoluzione della webcam
     [Tooltip("Lunghezza focale della webcam")]
     public float focalLenght = 1; //lunghezza focale della webcam
     [Tooltip("Fattore di conversione da distanza della testa a dimensione del bounding box rilevato")]
     public float headSizeFactor = 0.1f; //lunghezza focale della webcam
+
+
 
     ScreenBorders screenBorders;
     Camera camera;
@@ -32,6 +34,7 @@ public class HeadTracking_V2 : MonoBehaviour
         screenBorders = FindObjectOfType<ScreenBorders>();
         camera = GetComponent<Camera>();
         uDPReceive = GetComponent<UDPReceive>();
+
     }
 
 
@@ -42,12 +45,12 @@ public class HeadTracking_V2 : MonoBehaviour
 
         if (data != "")
         {
-            
+
             float xBBPos, yBBpos, BBsize;
             ParseAndScaleBBData(data, out xBBPos, out yBBpos, out BBsize);
             float xAverage, yAverage, sizeAverage;
             AverageBBData(xBBPos, yBBpos, BBsize, out xAverage, out yAverage, out sizeAverage);
-            
+
             Vector3 headPosition = BBDataToHeadPositionRelativeToCamera(
                 xAverage, yAverage, sizeAverage, focalLenght, debug: true);
 
@@ -57,20 +60,22 @@ public class HeadTracking_V2 : MonoBehaviour
             //la camera è rivolta verso lo schermo
             camera.transform.rotation = screenBorders.transform.rotation;
 
-            
             //per calcolare la distanza focale e il lens shift,
             //calcoliamo la posizione della camera rispetto al centro dello schermo
-            Vector3 headPositionInWorld = transform.localToWorldMatrix.MultiplyPoint(headPosition); //da camera a mondo
+            Vector3 headPositionInWorld = transform.parent.TransformPoint(headPosition); //da camera a mondo
             Vector3 headPositionRelativeToScreen = screenBorders.transform.worldToLocalMatrix.MultiplyPoint(headPositionInWorld);
-            
+
+
+            screenBorders.pixelsPerUnit = screenDPI / UnitsToInchesScale;
+
             //I parametri della camera sono tutti in pollici misurati nel mondo reale
             //dimensioniamo il sensore in base all'aspect ratio dello schermo e alla dimensione.
             camera.sensorSize = new(Screen.width / screenDPI, Screen.height / screenDPI);
 
             //traduciamo questa posizione in lunghezza focale e lens shift 
-            camera.lensShift =new Vector2(-headPositionRelativeToScreen.x * UnitsToInchesScale / camera.sensorSize.x,
-                                          -headPositionRelativeToScreen.y * UnitsToInchesScale / camera.sensorSize.y);
-            camera.focalLength = -headPositionRelativeToScreen.z * UnitsToInchesScale;
+            camera.lensShift = new Vector2((-headPositionRelativeToScreen.x / UnitsToInchesScale) / camera.sensorSize.x,
+                                          (-headPositionRelativeToScreen.y / UnitsToInchesScale) / camera.sensorSize.y);
+            camera.focalLength = -headPositionRelativeToScreen.z / UnitsToInchesScale;
         }
 
     }

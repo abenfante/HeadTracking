@@ -238,7 +238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   screenDPI: 120
-  UnitsToInchesScale: 5.65
+  UnitsToInchesScale: 0.35
   cameraResolution: {x: 640, y: 480}
   focalLenght: 2.84
   headSizeFactor: 2.89

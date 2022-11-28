@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class ScreenBorders : MonoBehaviour
 {
-    [HideInInspector]public float pixelsPerUnit = 100;
+    public float pixelsPerUnit = 100;
+    
     public bool debug = true;
     void Start()
     {
