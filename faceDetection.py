@@ -1,16 +1,10 @@
 import cv2
-import mediapipe as mp
-
 
 class FaceDetector:
 
-    def __init__(self, minDetectionCon=0.5):
-        self.results = None
-        self.minDetectionCon = minDetectionCon
-        self.mpFaceDetection = mp.solutions.face_detection
-        self.mpDraw = mp.solutions.drawing_utils
-        self.faceDetection = self.mpFaceDetection.FaceDetection(self.minDetectionCon)
-    #TODO: cambiare mediapipe con opencv 
+    def __init__(self):
+        self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
     def findFaces(self, img, draw=True):
         """
         Find faces in an image and return the bbox info
@@ -19,28 +13,15 @@ class FaceDetector:
         :return: Image with or without drawings.
                  Bounding Box list.
         """
-
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        self.results = self.faceDetection.process(imgRGB)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
         bboxs = []
-        if self.results.detections:
-            for id, detection in enumerate(self.results.detections):
-                bboxC = detection.location_data.relative_bounding_box
-                ih, iw, ic = img.shape
-                bbox = int(bboxC.xmin * iw), int(bboxC.ymin * ih), \
-                       int(bboxC.width * iw), int(bboxC.height * ih)
-                cx, cy = bbox[0] + (bbox[2] // 2), \
-                         bbox[1] + (bbox[3] // 2)
-                bboxInfo = {"id": id, "bbox": bbox, "score": detection.score, "center": (cx, cy)}
-                bboxs.append(bboxInfo)
-                if draw:
-                    img = cv2.rectangle(img, bbox, (255, 0, 255), 2)
-
-                    cv2.putText(img, f'{int(detection.score[0] * 100)}%',
-                                (bbox[0], bbox[1] - 20), cv2.FONT_HERSHEY_PLAIN,
-                                2, (255, 0, 255), 2)
+        for (x,y,w,h) in faces:
+            bbox = (x,y,w,h)
+            bboxs.append(bbox)
+            if draw:
+                img = cv2.rectangle(img, bbox, (255, 0, 255), 2)
         return img, bboxs
-
 
 def main():
     cap = cv2.VideoCapture(0)
@@ -51,12 +32,11 @@ def main():
 
         if bboxs:
             # bboxInfo - "id","bbox","score","center"
-            center = bboxs[0]["center"]
+            center = (bboxs[0][0] + bboxs[0][2] // 2, bboxs[0][1] + bboxs[0][3] // 2)
             cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
 
         cv2.imshow("Image", img)
         cv2.waitKey(1)
-
 
 if __name__ == "__main__":
     main()

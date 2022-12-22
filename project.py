@@ -6,7 +6,7 @@ capture = cv2.VideoCapture(0)
 capture.set(3, 640)
 capture.set(4, 480)
 
-faceDetector = FaceDetector(minDetectionCon=0.8)
+faceDetector = FaceDetector()
 
 socketInstance = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #socket to send face coordinates to unity
 urlPort = ('127.0.0.1', 8080) #localhost
@@ -19,8 +19,8 @@ while True:
 
     #TODO: try to add z coordinate if possible to zoom in and zoom out the camera on unity
     if boundingBoxes:
-        firstFaceCoordinates = boundingBoxes[0]['center'] #take the first face and obtain x and y values
-        boundingBoxSize = boundingBoxes[0]['bbox'][2]
+        firstFaceCoordinates = (boundingBoxes[0][0], boundingBoxes[0][1]) #take the first face and obtain x and y values
+        boundingBoxSize = boundingBoxes[0][2]
         #add boundingBoxSize to firstFaceCoordinates tuple
         firstFaceCoordinates = firstFaceCoordinates + (boundingBoxSize,)
         dataToSend = str.encode(str(firstFaceCoordinates)) #convert tuple to string
