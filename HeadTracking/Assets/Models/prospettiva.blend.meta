@@ -1,58 +1,12 @@
 fileFormatVersion: 2
-guid: 5b999c6b7047b48d7b94b0c1ab100952
+guid: f9e06df8c5a59fe469c104a3c14be357
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable:
   - first:
-      74: 2108944049028585761
-    second: Cube.005|Cube.005Action
-  - first:
-      74: -921551714485351398
-    second: Cube.005|SphereAction.001
-  - first:
-      74: -786189642478045201
-    second: Sphere|Cube.005Action
-  - first:
-      74: 1118002394686258303
-    second: Sphere|SphereAction.001
-  - first:
-      74: -2943248544388480264
-    second: Sphere.001|Cube.005Action
-  - first:
-      74: -1281199404920236529
-    second: Sphere.001|SphereAction.001
-  - first:
-      74: -6202600454691697941
-    second: Sphere.002|Cube.005Action
-  - first:
-      74: -8359709240678627442
-    second: Sphere.002|SphereAction.001
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material
-    second: {fileID: 2100000, guid: 88b22a4420b5b4f27b6009a46b541eaf, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material.001
-    second: {fileID: 2100000, guid: 281fe75ec4e7c46739ccb48df4116129, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material.002
-    second: {fileID: 2100000, guid: 47e2cb6e73b7d48228e83f7c7003f495, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material.003
-    second: {fileID: 2100000, guid: b0e497163e14047f4a7553190e1c79c7, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material.004
-    second: {fileID: 2100000, guid: ae33eca985689418295474d716d1d8de, type: 2}
+      74: -623603649343465320
+    second: Scene
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
