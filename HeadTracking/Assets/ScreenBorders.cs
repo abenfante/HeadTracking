@@ -2,22 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ScreenBorders : MonoBehaviour
+public class ScreenBorders : MonoBehaviour //Disegna la cornice dello schermo reale in unity
 {
-    public float pixelsPerUnit = 100;
-    
+     // screen resolution / pixels per unità di unity = dimensione dello schermo in unit
+    public HeadTracking_V2 headTracking;
+
     public bool debug = true;
     void Start()
     {
-        
-        
+        headTracking = FindObjectOfType<HeadTracking_V2>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         Matrix4x4 childToParentMatrix = transform.localToWorldMatrix;
-        Vector2 virtualScreenSize = new(Screen.width / pixelsPerUnit, Screen.height / pixelsPerUnit);
+        Vector2 virtualScreenSize = new(Screen.width / headTracking.pixelsPerUnit, Screen.height / headTracking.pixelsPerUnit);
+
         if (debug)
         {
             Vector3[] screenCorners = 
