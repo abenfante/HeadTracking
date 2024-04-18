@@ -1,0 +1,13 @@
+.custom_slider {
+    margin-bottom: 4px;
+    margin-right: 10px;
+}
+
+.SliderRow {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-shrink: 1;
+    min-width: auto;
+}

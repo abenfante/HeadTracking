@@ -20,7 +20,7 @@ public class HeadTracking_V2 : MonoBehaviour
 
 
     ScreenBorders screenBorders;
-    Camera camera;
+    Camera cam;
     UDPReceive uDPReceive; //script to access data from webcam
     GameObject cameraObject; //gameobject della camera virtuale
 
@@ -33,7 +33,7 @@ public class HeadTracking_V2 : MonoBehaviour
     {
         screenDPI = Screen.dpi;
         screenBorders = FindObjectOfType<ScreenBorders>();
-        camera = GetComponent<Camera>();
+        cam = GetComponent<Camera>();
         uDPReceive = GetComponent<UDPReceive>();
 
     }
@@ -67,10 +67,10 @@ public class HeadTracking_V2 : MonoBehaviour
             Vector3 headPositionRelativeToWebcam = BBDataToHeadPositionRelativeToWebcam(xPosAverage, yPosAverage, headSizeAverage, webcamFocalLenght, debug: true);
 
             // Posizioniamo la camera virtuale in corrispondenza della testa dell'utente nel mondo virtuale
-            camera.transform.localPosition = headPositionRelativeToWebcam;
+            cam.transform.localPosition = headPositionRelativeToWebcam;
 
             // Orientiamo la camera parallelamente allo schermo virtuale
-            camera.transform.rotation = screenBorders.transform.rotation;
+            cam.transform.rotation = screenBorders.transform.rotation;
 
             // Per calcolare le giusta distanza focale e ilngiusto lens shift per l'effetto finestra,
             // otteniamo la posizione del pinhole della camera rispetto al centro dello schermo virtuale
@@ -87,12 +87,12 @@ public class HeadTracking_V2 : MonoBehaviour
             // alla posizione della testa nel mondo reale proiettata sul "piano dell'oggetto" della webcam,
             // e la distanza focale come uguale
             // alla componente parallela all'asse ottico della distanza della testa dell'utente dalla webcam 
-            camera.sensorSize = new(Screen.width / screenDPI, Screen.height / screenDPI);
+            cam.sensorSize = new(Screen.width / screenDPI, Screen.height / screenDPI);
 
             //traduciamo questa posizione in lunghezza focale e lens shift 
-            camera.lensShift = new Vector2((-headPositionRelativeToScreen.x / UnitsToInchesScale) / camera.sensorSize.x,
-                                           (-headPositionRelativeToScreen.y / UnitsToInchesScale) / camera.sensorSize.y);
-            camera.focalLength = -headPositionRelativeToScreen.z / UnitsToInchesScale;
+            cam.lensShift = new Vector2((-headPositionRelativeToScreen.x / UnitsToInchesScale) / cam.sensorSize.x,
+                                           (-headPositionRelativeToScreen.y / UnitsToInchesScale) / cam.sensorSize.y);
+            cam.focalLength = -headPositionRelativeToScreen.z / UnitsToInchesScale;
         }
 
     }
