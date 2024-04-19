@@ -104,7 +104,7 @@ NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
-    serializedVersion: 2
+    serializedVersion: 3
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -117,7 +117,7 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
-    accuratePlacement: 0
+    buildHeightMesh: 0
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
     debug:
@@ -181,9 +181,17 @@ Camera:
   m_projectionMatrixMode: 2
   m_GateFitMode: 0
   m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 33.2
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0.17, y: 0}
-  m_FocalLength: 33.2
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -444,7 +452,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &968795126
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -461,7 +469,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1087163271
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,25 +532,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d8fc7b7f10d8b7448da8d2c67cb618d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sliderNames:
-  - Wow
-  - Che
-  - Figa
-  - Sta
-  - Interfaccia
-  sliderLimits:
-  - {x: 0, y: 100}
-  - {x: 0, y: 100}
-  - {x: 0, y: 100}
-  - {x: 0, y: 100}
-  - {x: 0, y: 100}
-  - {x: 0, y: 100}
   sliderRowAsset: {fileID: 9197481963319205126, guid: 414adc85a4098264583a5fb4d0f42cf0, type: 3}
+  SettingsUpdateEvents: []
 --- !u!1001 &1416408499
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: f9e06df8c5a59fe469c104a3c14be357, type: 3}
@@ -609,6 +607,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 8a25de39e41abe54d90de459b9f088c6, type: 2}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -805130811054580064, guid: f9e06df8c5a59fe469c104a3c14be357, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 968795126}
   m_SourcePrefab: {fileID: 100100000, guid: f9e06df8c5a59fe469c104a3c14be357, type: 3}
 --- !u!1 &1500280786
 GameObject:
@@ -655,5 +659,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f56dc4e7d9b824eaecd396165238e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  headTracking: {fileID: 0}
+  headTracking: {fileID: 82518674}
   debug: 1

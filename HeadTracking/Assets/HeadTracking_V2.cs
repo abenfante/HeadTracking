@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
+using UnityEngine.Events;
 public class HeadTracking_V2 : MonoBehaviour
 {
     [Tooltip("Rapporto tra lunghezza di una unità di unity e di un pixel: determina la dimensione dello schermo nel mondo virtuale")]
@@ -15,14 +15,13 @@ public class HeadTracking_V2 : MonoBehaviour
     [Tooltip("Lunghezza focale della webcam")]
     public float webcamFocalLenght = 1;
     [Tooltip("Fattore per cui si moltiplica la dimensione del bonding box della testa rilevato per ottenere la distanza della testa dallo schermo")]
-    public float headSizeFactor = 0.1f; 
-
+    public float headSizeFactor = 0.1f;
 
 
     ScreenBorders screenBorders;
     Camera cam;
     UDPReceive uDPReceive; //script to access data from webcam
-    GameObject cameraObject; //gameobject della camera virtuale
+    //GameObject cameraObject; //gameobject della camera virtuale
 
 
     List<float> xList = new();
@@ -35,6 +34,24 @@ public class HeadTracking_V2 : MonoBehaviour
         screenBorders = FindObjectOfType<ScreenBorders>();
         cam = GetComponent<Camera>();
         uDPReceive = GetComponent<UDPReceive>();
+
+        SettingsSliders settingsUI = FindObjectOfType<SettingsSliders>();
+
+
+        settingsUI.CreateFloatSlider(pixelsPerUnit, 0, 1000, "Pixels per unità").AddListener( call =>
+        { pixelsPerUnit = call; });
+        settingsUI.CreateFloatSlider(screenDPI, 0, 1000, "screenDPI").AddListener(call =>
+        { screenDPI = call; });
+        settingsUI.CreateFloatSlider(UnitsToInchesScale, 0, 1000, "UnitsToInchesScale").AddListener(call =>
+        { UnitsToInchesScale = call; });
+        settingsUI.CreateFloatSlider(webcamResolution.x, 0, 1000, "webcamResolution.x").AddListener(call => 
+        { webcamResolution.x = call; });
+        settingsUI.CreateFloatSlider(webcamResolution.y, 0, 1000, "webcamResolution.y").AddListener(call => 
+        { webcamResolution.y = call; });
+        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 1, "webcamFocalLenght").AddListener(call =>
+        { webcamFocalLenght = call; });
+        settingsUI.CreateFloatSlider(pixelsPerUnit, 0, 1, "headSizeFactor").AddListener(call =>
+        { pixelsPerUnit = call; });
 
     }
 
