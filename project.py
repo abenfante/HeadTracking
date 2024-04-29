@@ -19,7 +19,7 @@ while True:
 
     #TODO: try to add z coordinate if possible to zoom in and zoom out the camera on unity
     if boundingBoxes:
-        firstFaceCoordinates = (boundingBoxes[0][0], boundingBoxes[0][1]) #take the first face and obtain x and y values
+        firstFaceCoordinates = (boundingBoxes[0][0] + (boundingBoxes[0][2] // 2), boundingBoxes[0][1] + (boundingBoxes[0][3] // 2)) #take the first face and obtain x and y values
         boundingBoxSize = boundingBoxes[0][2]
         #add boundingBoxSize to firstFaceCoordinates tuple
         firstFaceCoordinates = firstFaceCoordinates + (boundingBoxSize,)

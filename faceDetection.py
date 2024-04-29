@@ -24,7 +24,7 @@ class FaceDetector:
         return img, bboxs
 
 def main():
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     detector = FaceDetector()
     while True:
         success, img = cap.read()
@@ -32,7 +32,7 @@ def main():
 
         if bboxs:
             # bboxInfo - "id","bbox","score","center"
-            center = ((bboxs[0][0] + bboxs[0][2]) // 2, (bboxs[0][1] + bboxs[0][3] // 2)) # average of x1,x2 and y1,y2 to get the center of the bounding box (top left and bottom right corners)
+            center = (bboxs[0][0] + (bboxs[0][2] // 2), bboxs[0][1] + (bboxs[0][3] // 2)) # Top-left corner plus half the width and half the length
             cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
 
         cv2.imshow("Image", img)

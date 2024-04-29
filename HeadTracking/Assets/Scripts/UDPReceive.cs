@@ -29,7 +29,6 @@ public class UDPReceive : MonoBehaviour
     // receive thread
     private void ReceiveData()
     {
-
         client = new UdpClient(port);
         while (startReceiving)
         {
