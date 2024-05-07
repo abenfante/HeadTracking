@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
+
 public class HeadTracking_V2 : MonoBehaviour
 {
-    [Tooltip("Rapporto tra lunghezza di una unità di unity e di un pixel: determina la dimensione dello schermo nel mondo virtuale")]
-    public float pixelsPerUnit = 100;
     [Tooltip("Densità di pixel in DPI dello schermo usato")]
     public float screenDPI; //densità di pixel in DPI dello schermo usato
     [Tooltip("Quanti pollici è lunga una unità di lunghezza di Unity nella mondo reale")]
@@ -16,13 +17,23 @@ public class HeadTracking_V2 : MonoBehaviour
     public float webcamFocalLenght = 1;
     [Tooltip("Fattore per cui si moltiplica la dimensione del bonding box della testa rilevato per ottenere la distanza della testa dallo schermo")]
     public float headSizeFactor = 0.1f;
+    
+    // For setting the transform of the camera
+    private Transform webcamTransform;
+    public float webcamPitch = 0;
+    public float webcamHeight = 1f;
 
+    // Rapporto tra lunghezza di una unità di unity e di un pixel: determina la dimensione dello schermo nel mondo virtuale
+    [HideInInspector]
+    public float pixelsPerUnit = 100;
 
     ScreenBorders screenBorders;
     Camera cam;
     UDPReceive uDPReceive; //script to access data from webcam
     //GameObject cameraObject; //gameobject della camera virtuale
 
+    //Needed to update headDistance in gui
+    private Label HeadDistanceLabel;
 
     List<float> xList = new();
     List<float> yList = new();
@@ -35,27 +46,44 @@ public class HeadTracking_V2 : MonoBehaviour
         cam = GetComponent<Camera>();
         uDPReceive = GetComponent<UDPReceive>();
 
+
         SettingsSliders settingsUI = FindObjectOfType<SettingsSliders>();
 
+        webcamTransform = transform.parent;
 
-        settingsUI.CreateFloatSlider(pixelsPerUnit, 0, 1000, "Pixels per unità").AddListener( call =>
-        { pixelsPerUnit = call; });
+        RestoreSavedValues();
+
+        if(screenDPI == 0)
         settingsUI.CreateFloatSlider(screenDPI, 0, 1000, "screenDPI").AddListener(call =>
         { screenDPI = call; });
-        settingsUI.CreateFloatSlider(UnitsToInchesScale, 0, 1000, "UnitsToInchesScale").AddListener(call =>
+        settingsUI.CreateFloatSlider(UnitsToInchesScale, 0.1f, 3, "UnitsToInchesScale").AddListener(call =>
         { UnitsToInchesScale = call; });
-        settingsUI.CreateFloatSlider(webcamResolution.x, 0, 1000, "webcamResolution.x").AddListener(call => 
+        settingsUI.CreateFloatSlider(webcamResolution.x, 0, 4000, "webcamResolution.x").AddListener(call => 
         { webcamResolution.x = call; });
-        settingsUI.CreateFloatSlider(webcamResolution.y, 0, 1000, "webcamResolution.y").AddListener(call => 
+        settingsUI.CreateFloatSlider(webcamResolution.y, 0, 4000, "webcamResolution.y").AddListener(call => 
         { webcamResolution.y = call; });
-        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 1, "webcamFocalLenght").AddListener(call =>
+        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 5, "webcamFocalLenght").AddListener(call =>
         { webcamFocalLenght = call; });
-        settingsUI.CreateFloatSlider(pixelsPerUnit, 0, 1, "headSizeFactor").AddListener(call =>
-        { pixelsPerUnit = call; });
+        settingsUI.CreateFloatSlider(headSizeFactor, 0.1f, 5, "headSizeFactor").AddListener(call =>
+        { headSizeFactor = call; });
+        settingsUI.CreateFloatSlider(webcamPitch, -30f, 30f, "Webcam Pitch").AddListener(call =>
+        { webcamTransform.rotation = Quaternion.Euler(new(call, 0f, 0f)); });
+        settingsUI.CreateFloatSlider(webcamHeight, -6, 6, "Webcam Height").AddListener(call =>
+        { webcamTransform.position = new(0f, call, 0f); });
+        
+        HeadDistanceLabel = settingsUI.rootVisualElement.Q<Label>("HeadDistance");
 
     }
 
+    private void RestoreSavedValues()
+    {
+        Debug.Log("save not implemented");
+    }
 
+    public void SaveValues()
+    {
+        Debug.Log("Click!");
+    }
 
     void Update()
     {
@@ -68,9 +96,9 @@ public class HeadTracking_V2 : MonoBehaviour
             ParseAndScaleBBData(data, out xBBPos, out yBBpos, out BBsize);
             float xPosAverage, yPosAverage, headSizeAverage;
             // Media mobile dei dati dalla camera per ammorbidire i movimenti
-            AverageBBData(xBBPos, yBBpos, BBsize, out xPosAverage, out yPosAverage, out headSizeAverage); 
+            AverageBBData(xBBPos, yBBpos, BBsize, out xPosAverage, out yPosAverage, out headSizeAverage);
 
-            // TODO: decidere quali parametri si chiedono di preciso all'utente
+            // Necessario per lo script di debug
             pixelsPerUnit = screenDPI / UnitsToInchesScale;
             
             // La posizione della testa nel mondo virtuale è ricostruita sfruttando il sistema di trasformate di Unity.
@@ -96,12 +124,12 @@ public class HeadTracking_V2 : MonoBehaviour
             Vector3 headPositionRelativeToScreen = screenBorders.transform.worldToLocalMatrix.MultiplyPoint(headPositionInWorld);
 
 
-
-            // I parametri della camera sono tutti in pollici (convenzione), misurati nel mondo reale.
+            // TO DO: riscrivere
+            // I parametri della camera di unity sono tutti in pollici (convenzione), misurati nel mondo reale.
             // Per comodità, rendiamo le dimensioni del sensore virtuale uguali a quelle dello schermo.
-            // Differentemente dalla realtà, questo non influirà sulla qualità dell'immagine, ma ci permetterà di
-            // impostare il vettore del lens shift virtuale come uguale
-            // alla posizione della testa nel mondo reale proiettata sul "piano dell'oggetto" della webcam,
+            // Differentemente dalla realtà, questo non influirà sulla qualità dell'immagine, ma ci semplifica i calcoli:
+            // possiamo impostare il vettore del lens shift virtuale come uguale
+            // alla posizione della testa nel mondo reale, se proiettata sul "piano dell'oggetto" della webcam,
             // e la distanza focale come uguale
             // alla componente parallela all'asse ottico della distanza della testa dell'utente dalla webcam 
             cam.sensorSize = new(Screen.width / screenDPI, Screen.height / screenDPI);
@@ -110,6 +138,15 @@ public class HeadTracking_V2 : MonoBehaviour
             cam.lensShift = new Vector2((-headPositionRelativeToScreen.x / UnitsToInchesScale) / cam.sensorSize.x,
                                            (-headPositionRelativeToScreen.y / UnitsToInchesScale) / cam.sensorSize.y);
             cam.focalLength = -headPositionRelativeToScreen.z / UnitsToInchesScale;
+
+            Vector2 virtualScreenSize = new(Screen.width / pixelsPerUnit, Screen.height / pixelsPerUnit);
+            float distanceFromScreenInScreenWidths = -headPositionInWorld.z / virtualScreenSize.x;
+
+            HeadDistanceLabel.text = distanceFromScreenInScreenWidths.ToString();
+        }
+        else
+        {
+            HeadDistanceLabel.text = "NO DATA";
         }
 
     }

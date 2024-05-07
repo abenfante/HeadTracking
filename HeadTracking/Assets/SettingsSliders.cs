@@ -16,17 +16,18 @@ public class SettingsSliders : MonoBehaviour
     [SerializeField]
     VisualTreeAsset sliderRowAsset;
 
-    private VisualElement rootVisualElement;
-    private VisualElement container;
+    public VisualElement rootVisualElement;
+    public VisualElement settingsContainer;
     public List<UnityEvent<float>> SettingsUpdateEvents;
-
+    public Button saveButton;
     private void OnEnable()
     {
         rootVisualElement = GetComponent<UIDocument>().rootVisualElement;
-        container = rootVisualElement.Q<VisualElement>("SettingsContainer");
+        settingsContainer = rootVisualElement.Q<VisualElement>("SettingsContainer");
+        saveButton = rootVisualElement.Q<Button>("SaveButton");
+
+        saveButton.clicked += FindObjectOfType<HeadTracking_V2>().SaveValues;
     }
-
-
 
     internal UnityEvent<float> CreateFloatSlider(float initValue, float minValue, float maxValue, string label)
     {
@@ -34,7 +35,7 @@ public class SettingsSliders : MonoBehaviour
 
         // Add a slider to visual tree
         VisualElement sliderRow = sliderRowAsset.Instantiate();
-        container.Add(sliderRow);
+        settingsContainer.Add(sliderRow);
 
         // Get the slider and textfield inside them
         Slider slider = sliderRow.Q<Slider>();
