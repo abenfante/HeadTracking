@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: HeadTracking_V2_27-01a
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: ca3b20656d711ca4db82176fb1093ce5, type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: screenDPI
+    value: 120
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: UnitsToInchesScale
+    value: 0.48
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: cameraResolution.x
+    value: 640
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: cameraResolution.y
+    value: 480
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: focalLenght
+    value: 4.23
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: headSizeFactor
+    value: 1.31
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []
