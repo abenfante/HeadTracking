@@ -53,15 +53,23 @@ public class HeadTracking_V2 : MonoBehaviour
 
         RestoreSavedValues();
 
+        if (!WebCamResolutionFromClArgs())
+        {
+            // Mostrati all'utente solo se non vengono trovati come argomenti da linea di comando
+            settingsUI.CreateFloatSlider(webcamResolution.x, 0, 4000, "webcamResolution.x").AddListener(call => 
+            { webcamResolution.x = call; });
+            settingsUI.CreateFloatSlider(webcamResolution.y, 0, 4000, "webcamResolution.y").AddListener(call => 
+            { webcamResolution.y = call; });
+        }
+
+
+        // Necessario solo quando l'app non rileva i DPI dello schermo
         if(screenDPI == 0)
         settingsUI.CreateFloatSlider(screenDPI, 0, 1000, "screenDPI").AddListener(call =>
         { screenDPI = call; });
+        // Sempre disponibili all'utente
         settingsUI.CreateFloatSlider(UnitsToInchesScale, 0.1f, 3, "UnitsToInchesScale").AddListener(call =>
         { UnitsToInchesScale = call; });
-        settingsUI.CreateFloatSlider(webcamResolution.x, 0, 4000, "webcamResolution.x").AddListener(call => 
-        { webcamResolution.x = call; });
-        settingsUI.CreateFloatSlider(webcamResolution.y, 0, 4000, "webcamResolution.y").AddListener(call => 
-        { webcamResolution.y = call; });
         settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 5, "webcamFocalLenght").AddListener(call =>
         { webcamFocalLenght = call; });
         settingsUI.CreateFloatSlider(headSizeFactor, 0.1f, 5, "headSizeFactor").AddListener(call =>
@@ -71,18 +79,41 @@ public class HeadTracking_V2 : MonoBehaviour
         settingsUI.CreateFloatSlider(webcamHeight, -6, 6, "Webcam Height").AddListener(call =>
         { webcamTransform.position = new(0f, call, 0f); });
         
+        // Mostra la distanza della testa per aiutare nella calibrazione
         HeadDistanceLabel = settingsUI.rootVisualElement.Q<Label>("HeadDistance");
 
     }
 
+    private bool WebCamResolutionFromClArgs()
+    {
+        string[] ClArgs = Environment.GetCommandLineArgs();
+        float x, y;
+        if(float.TryParse(ClArgs[0], out x) && float.TryParse(ClArgs[0], out y) )
+        {
+            webcamResolution.x = x;
+            webcamResolution.y = y;
+            return true;
+        }
+        return false;
+    }
+
     private void RestoreSavedValues()
     {
-        Debug.Log("save not implemented");
+        UnitsToInchesScale = PlayerPrefs.GetFloat("UnitsToInchesScale") == 0 ? UnitsToInchesScale : PlayerPrefs.GetFloat("UnitsToInchesScale");
+        webcamFocalLenght = PlayerPrefs.GetFloat("webcamFocalLenght") == 0 ? webcamFocalLenght : PlayerPrefs.GetFloat("webcamFocalLenght");
+        headSizeFactor = PlayerPrefs.GetFloat("headSizeFactor") == 0 ? headSizeFactor : PlayerPrefs.GetFloat("headSizeFactor");
+        webcamPitch = PlayerPrefs.GetFloat("webcamPitch") == 0 ? webcamPitch : PlayerPrefs.GetFloat("webcamPitch");
+        webcamHeight = PlayerPrefs.GetFloat("webcamHeight") == 0 ? webcamHeight : PlayerPrefs.GetFloat("webcamHeight");
     }
 
     public void SaveValues()
     {
-        Debug.Log("Click!");
+        PlayerPrefs.SetFloat("UnitsToInchesScale", UnitsToInchesScale);
+        PlayerPrefs.SetFloat("webcamFocalLenght", webcamFocalLenght);
+        PlayerPrefs.SetFloat("headSizeFactor", headSizeFactor);
+        PlayerPrefs.SetFloat("webcamPitch", webcamPitch);
+        PlayerPrefs.SetFloat("webcamHeight", webcamHeight);
+        PlayerPrefs.Save();
     }
 
     void Update()
