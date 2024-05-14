@@ -1,10 +1,21 @@
 from faceDetection import FaceDetector
 import cv2
 import socket
+import sys
+
+
+webcamXRes = 640;
+webcamYRes = 480;
+
+try:
+    webcamXRes = float(sys.argv[1])
+    webcamYRes = float(sys.argv[2])
+except:
+    pass
 
 capture = cv2.VideoCapture(1)
-capture.set(3, 640)
-capture.set(4, 480)
+capture.set(3, webcamXRes)
+capture.set(4, webcamYRes)
 
 faceDetector = FaceDetector()
 
@@ -28,3 +39,5 @@ while True:
 
     cv2.imshow("Head Tracking", image)
     cv2.waitKey(1)
+
+

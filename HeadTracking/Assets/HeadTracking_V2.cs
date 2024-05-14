@@ -53,7 +53,7 @@ public class HeadTracking_V2 : MonoBehaviour
 
         RestoreSavedValues();
 
-        if (!WebCamResolutionFromClArgs())
+        if (!WebCamResolutionFoundInClArgs())
         {
             // Mostrati all'utente solo se non vengono trovati come argomenti da linea di comando
             settingsUI.CreateFloatSlider(webcamResolution.x, 0, 4000, "webcamResolution.x").AddListener(call => 
@@ -84,11 +84,11 @@ public class HeadTracking_V2 : MonoBehaviour
 
     }
 
-    private bool WebCamResolutionFromClArgs()
+    private bool WebCamResolutionFoundInClArgs()
     {
         string[] ClArgs = Environment.GetCommandLineArgs();
         float x, y;
-        if(float.TryParse(ClArgs[0], out x) && float.TryParse(ClArgs[0], out y) )
+        if(float.TryParse(ClArgs[1], out x) && float.TryParse(ClArgs[2], out y) )
         {
             webcamResolution.x = x;
             webcamResolution.y = y;
