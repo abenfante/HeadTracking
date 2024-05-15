@@ -4,16 +4,20 @@ import socket
 import sys
 
 
-webcamXRes = 640;
-webcamYRes = 480;
-
+webcamXRes = 640
+webcamYRes = 480
+webcamIndex = 0
+# Prova a prendere i parametri della webcam da linea di comando
 try:
     webcamXRes = float(sys.argv[1])
     webcamYRes = float(sys.argv[2])
+    webcamIndex = int(sys.argv[3])
 except:
     pass
 
-capture = cv2.VideoCapture(1)
+capture = cv2.VideoCapture(webcamIndex)
+
+
 capture.set(3, webcamXRes)
 capture.set(4, webcamYRes)
 

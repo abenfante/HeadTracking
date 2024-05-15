@@ -70,7 +70,7 @@ public class HeadTracking_V2 : MonoBehaviour
         // Sempre disponibili all'utente
         settingsUI.CreateFloatSlider(UnitsToInchesScale, 0.1f, 3, "UnitsToInchesScale").AddListener(call =>
         { UnitsToInchesScale = call; });
-        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 5, "webcamFocalLenght").AddListener(call =>
+        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 20, "webcamFocalLenght").AddListener(call =>
         { webcamFocalLenght = call; });
         settingsUI.CreateFloatSlider(headSizeFactor, 0.1f, 5, "headSizeFactor").AddListener(call =>
         { headSizeFactor = call; });
