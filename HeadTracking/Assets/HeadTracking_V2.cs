@@ -56,27 +56,27 @@ public class HeadTracking_V2 : MonoBehaviour
         if (!WebCamResolutionFoundInClArgs())
         {
             // Mostrati all'utente solo se non vengono trovati come argomenti da linea di comando
-            settingsUI.CreateFloatSlider(webcamResolution.x, 0, 4000, "webcamResolution.x").AddListener(call => 
+            settingsUI.CreateFloatSlider(webcamResolution.x, 0, 4000, "Risoluzione orizzontale della webcam").AddListener(call => 
             { webcamResolution.x = call; });
-            settingsUI.CreateFloatSlider(webcamResolution.y, 0, 4000, "webcamResolution.y").AddListener(call => 
+            settingsUI.CreateFloatSlider(webcamResolution.y, 0, 4000, "Risoluzione verticale della webcam").AddListener(call => 
             { webcamResolution.y = call; });
         }
 
 
         // Necessario solo quando l'app non rileva i DPI dello schermo
         if(screenDPI == 0)
-        settingsUI.CreateFloatSlider(screenDPI, 0, 1000, "screenDPI").AddListener(call =>
+        settingsUI.CreateFloatSlider(screenDPI, 0, 1000, "DPI dello schermo").AddListener(call =>
         { screenDPI = call; });
         // Sempre disponibili all'utente
         settingsUI.CreateFloatSlider(UnitsToInchesScale, 0.1f, 3, "UnitsToInchesScale").AddListener(call =>
         { UnitsToInchesScale = call; });
-        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 20, "webcamFocalLenght").AddListener(call =>
+        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 20, "Lunghezza focale della webcam").AddListener(call =>
         { webcamFocalLenght = call; });
-        settingsUI.CreateFloatSlider(headSizeFactor, 0.1f, 5, "headSizeFactor").AddListener(call =>
+        settingsUI.CreateFloatSlider(headSizeFactor, 0.1f, 5, "Fattore di distanza della testa").AddListener(call =>
         { headSizeFactor = call; });
-        settingsUI.CreateFloatSlider(webcamPitch, -30f, 30f, "Webcam Pitch").AddListener(call =>
+        settingsUI.CreateFloatSlider(webcamPitch, -30f, 30f, "Inclinazione webcam (alto/basso) ").AddListener(call =>
         { webcamTransform.rotation = Quaternion.Euler(new(call, 0f, 0f)); });
-        settingsUI.CreateFloatSlider(webcamHeight, -6, 6, "Webcam Height").AddListener(call =>
+        settingsUI.CreateFloatSlider(webcamHeight, -6, 6, "Altezza webcam").AddListener(call =>
         { webcamTransform.position = new(0f, call, 0f); });
         
         // Mostra la distanza della testa per aiutare nella calibrazione

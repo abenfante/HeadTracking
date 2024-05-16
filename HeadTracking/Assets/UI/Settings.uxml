@@ -1,11 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/MyStyle.uss?fileID=7433441132597879392&amp;guid=b72785fc58975ad48a5a859faaa4bb26&amp;type=3#MyStyle" />
     <ui:VisualElement style="align-items: flex-end; justify-content: flex-start; width: 100%;">
-        <ui:Foldout text="Impostazioni" value="true" style="background-color: rgba(250, 250, 250, 0.81); width: 50%;">
+        <ui:Foldout text="Impostazioni (clicca qui per minimizzare)" value="true" style="background-color: rgba(250, 250, 250, 0.81); width: 50%;">
             <ui:VisualElement name="SettingsContainer" />
-            <ui:Button text="Save Settings" display-tooltip-when-elided="true" name="SaveButton" />
-            <ui:VisualElement name="VisualElement" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; flex-wrap: nowrap; width: 308px;">
-                <ui:Label tabindex="-1" text="Head Distance in screen lengths:" display-tooltip-when-elided="true" focusable="true" name="Label" />
+            <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row;">
+                <ui:Button text="Salva parametri" display-tooltip-when-elided="true" name="SaveButton" style="width: 47%;" />
+                <ui:Button text="Chiudi" display-tooltip-when-elided="true" name="QuitButton" style="white-space: nowrap; width: 47%;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="VisualElement" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; flex-wrap: nowrap; width: 308px; -unity-text-align: middle-left;">
+                <ui:Label tabindex="-1" text="Distanza della testa:&#10;(in unità di larghezze della scena) " display-tooltip-when-elided="true" focusable="true" name="Label" style="flex-wrap: nowrap; white-space: normal;" />
                 <ui:Label text="Label" display-tooltip-when-elided="true" name="HeadDistance" enable-rich-text="true" tabindex="-1" focusable="true" />
             </ui:VisualElement>
         </ui:Foldout>

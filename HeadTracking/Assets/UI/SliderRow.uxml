@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="SliderRow" style="flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: nowrap;">
-        <ui:TextField picking-mode="Ignore" label="Text Field" value="0" style="margin-right: 20px; width: 40%;" />
+        <ui:TextField picking-mode="Ignore" label="Text Field" value="0" style="margin-right: 20px; width: 45%;" />
         <ui:Slider picking-mode="Ignore" value="42" high-value="100" name="Slider" style="max-width: none; width: 50%; padding-right: 39px;" />
     </ui:VisualElement>
 </ui:UXML>

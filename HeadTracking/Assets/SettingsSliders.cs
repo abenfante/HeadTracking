@@ -20,13 +20,16 @@ public class SettingsSliders : MonoBehaviour
     public VisualElement settingsContainer;
     public List<UnityEvent<float>> SettingsUpdateEvents;
     public Button saveButton;
+    public Button quitButton;
     private void OnEnable()
     {
         rootVisualElement = GetComponent<UIDocument>().rootVisualElement;
         settingsContainer = rootVisualElement.Q<VisualElement>("SettingsContainer");
         saveButton = rootVisualElement.Q<Button>("SaveButton");
+        quitButton = rootVisualElement.Q<Button>("QuitButton");
 
         saveButton.clicked += FindObjectOfType<HeadTracking_V2>().SaveValues;
+        quitButton.clicked += Application.Quit;
     }
 
     internal UnityEvent<float> CreateFloatSlider(float initValue, float minValue, float maxValue, string label)
