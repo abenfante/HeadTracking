@@ -68,13 +68,13 @@ public class HeadTracking_V2 : MonoBehaviour
         settingsUI.CreateFloatSlider(screenDPI, 0, 1000, "DPI dello schermo").AddListener(call =>
         { screenDPI = call; });
         // Sempre disponibili all'utente
-        settingsUI.CreateFloatSlider(UnitsToInchesScale, 0.1f, 3, "UnitsToInchesScale").AddListener(call =>
+        settingsUI.CreateFloatSlider(UnitsToInchesScale, 0.1f, 3, "Dimensioni della scena").AddListener(call =>
         { UnitsToInchesScale = call; });
-        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 20, "Lunghezza focale della webcam").AddListener(call =>
+        settingsUI.CreateFloatSlider(webcamFocalLenght, 0, 20, "Lunghezza focale della webcam (unità arbitrarie)").AddListener(call =>
         { webcamFocalLenght = call; });
         settingsUI.CreateFloatSlider(headSizeFactor, 0.1f, 5, "Fattore di distanza della testa").AddListener(call =>
         { headSizeFactor = call; });
-        settingsUI.CreateFloatSlider(webcamPitch, -30f, 30f, "Inclinazione webcam (alto/basso) ").AddListener(call =>
+        settingsUI.CreateFloatSlider(webcamPitch, -30f, 30f, "Inclinazione webcam (alto/basso)").AddListener(call =>
         { webcamTransform.rotation = Quaternion.Euler(new(call, 0f, 0f)); });
         settingsUI.CreateFloatSlider(webcamHeight, -6, 6, "Altezza webcam").AddListener(call =>
         { webcamTransform.position = new(0f, call, 0f); });
@@ -126,6 +126,7 @@ public class HeadTracking_V2 : MonoBehaviour
             float xBBPos, yBBpos, BBsize;
             ParseAndScaleBBData(data, out xBBPos, out yBBpos, out BBsize);
             float xPosAverage, yPosAverage, headSizeAverage;
+
             // Media mobile dei dati dalla camera per ammorbidire i movimenti
             AverageBBData(xBBPos, yBBpos, BBsize, out xPosAverage, out yPosAverage, out headSizeAverage);
 
@@ -148,7 +149,7 @@ public class HeadTracking_V2 : MonoBehaviour
             // Orientiamo la camera parallelamente allo schermo virtuale
             cam.transform.rotation = screenBorders.transform.rotation;
 
-            // Per calcolare le giusta distanza focale e ilngiusto lens shift per l'effetto finestra,
+            // Per calcolare le giusta distanza focale e il giusto lens shift per l'effetto finestra,
             // otteniamo la posizione del pinhole della camera rispetto al centro dello schermo virtuale
             // con il sistema di trasformate di unity
             Vector3 headPositionInWorld = transform.parent.TransformPoint(headPositionRelativeToWebcam); //da camera a mondo
@@ -184,14 +185,9 @@ public class HeadTracking_V2 : MonoBehaviour
 
     private Vector3 BBDataToHeadPositionRelativeToWebcam(float BBx, float BBy, float BBsize, float focalLenght, bool debug)
     {
-        /*
-        -rendere la camera così costruita facilmente spostabile e ruotabile
-        -inserire funzionalità per regolare scala e lunghezza focale durante l'uso
-        - migliorare accuratezza del calcolo della distanza
-        */
-
         // distanza ricostruita del volto dalla camera, lungo l'asse ottico
-        float headDistance = headSizeFactor / BBsize;
+        float headDistance = headSizeFactor / BBsize * focalLenght;
+
         // calcolo del fattore di conversione delle coordinate della testa perpendicolari all'asse ottico,
         // per passare dalle coordinate dell'immagine alle coordinate del mondo 3D
         float p = headDistance / focalLenght;
@@ -288,7 +284,7 @@ public class HeadTracking_V2 : MonoBehaviour
         xBBpos = (float.Parse(points[0]) - webcamResolution.x / 2f) / 100; // between -h_res/2 and h_res/2
         yBBpos = (float.Parse(points[1]) - webcamResolution.y / 2f) / 100; // between -v_res/2 and v_res/2
 
-        // we normalize the bounding box size to 640, its maximum size
+        // we normalize the bounding box size
         BBsize = float.Parse(points[2]) / Mathf.Max(webcamResolution.x, webcamResolution.y);
     }
 }
